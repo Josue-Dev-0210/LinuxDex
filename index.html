@@ -40,6 +40,14 @@
             </svg>
             Todos
             </button>
+
+            <button class="btn-categoria btn-categoria-favoritos" data-cat="favoritos">
+                <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 4l3.5 8 8.5.7-6.5 5.6 2 8.7L16 22.5 8.5 27l2-8.7L4 12.7 12.5 12z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+                Favoritos
+            </button>
+
             <button class="btn-categoria" data-cat="archivos">
             <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
                 <path d="M6 4h12l6 6v18H6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -96,8 +104,21 @@
         </button>
     </nav>
 
+    <div id="filtros-avanzados">
+        <label class="filtro-check">
+            <input type="checkbox" id="chk-solo-peligrosos" />
+            <span>⚠ Solo peligrosos</span>
+        </label>
+        <select id="select-orden">
+            <option value="defecto">Orden original</option>
+            <option value="az">A-Z</option>
+            <option value="categoria">Por categoría</option>
+        </select>
+    </div>
+
     <div id="pie-lateral">
         <span id="contador-cmds">0 comandos</span>
+        <button id="btn-abrir-terminal">▸ terminal</button>
     </div>
     </aside>
 
@@ -113,6 +134,20 @@
     </main>
 
 </div>
+
+    <div id="panel-terminal" class="oculto">
+        <div id="terminal-ventana">
+            <div id="terminal-barra">
+                <span>bash — simulado</span>
+                <button id="btn-cerrar-terminal">✕</button>
+            </div>
+            <div id="terminal-salida"></div>
+            <div id="terminal-entrada-fila">
+                <span id="terminal-prompt-fijo">usuario@linuxdex:~$</span>
+                <input type="text" id="terminal-entrada" autocomplete="off" spellcheck="false" />
+            </div>
+        </div>
+    </div>
 
     <script src="linuxdex.js"></script>
 </body>

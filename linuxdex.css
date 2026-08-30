@@ -232,3 +232,193 @@ body { overflow: auto; }
 #contenido { padding: 16px; }
 #cuadricula-cmds { grid-template-columns: 1fr; }
 }
+.cmd-ejemplo {
+    font-size: 11px;
+    color: var(--cyan);
+    opacity: 0.75;
+    word-break: break-all;
+    line-height: 1.4;
+}
+.cmd-ejemplo-etiqueta {
+    color: var(--gris);
+    margin-right: 4px;
+}
+
+.cmd-fila-inferior {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 2px;
+}
+.cmd-acciones {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.btn-favorito {
+    background: transparent;
+    border: 1px solid var(--borde);
+    border-radius: 4px;
+    width: 26px;
+    height: 24px;
+    color: var(--gris);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+.btn-favorito:hover { border-color: var(--violeta); color: var(--violeta); }
+
+.btn-favorito.activo {
+    border-color: var(--violeta);
+    color: var(--violeta);
+}
+
+.btn-categoria-favoritos.active {
+    color: var(--violeta);
+}
+#pie-lateral {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#btn-abrir-terminal {
+    background: transparent;
+    border: 1px solid var(--borde);
+    border-radius: 4px;
+    padding: 4px 10px;
+    color: var(--cyan);
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+#btn-abrir-terminal:hover { border-color: var(--cyan); }
+
+#panel-terminal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+#terminal-ventana {
+    width: min(640px, 90vw);
+    height: min(420px, 70vh);
+    background: #050507;
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+#terminal-barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--superficie);
+    border-bottom: 1px solid var(--borde);
+    font-size: 11px;
+    color: var(--texto2);
+}
+
+#btn-cerrar-terminal {
+    background: transparent;
+    border: none;
+    color: var(--gris);
+    cursor: pointer;
+    font-size: 13px;
+}
+#btn-cerrar-terminal:hover { color: var(--rosa); }
+
+#terminal-salida {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #7effa0;
+    white-space: pre-wrap;
+}
+
+.terminal-linea { word-break: break-all; }
+.terminal-prompt-eco { color: var(--cyan); }
+.terminal-error { color: var(--rosa); }
+.terminal-generico { color: var(--gris); font-style: italic; }
+
+#terminal-entrada-fila {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--borde);
+}
+
+#terminal-prompt-fijo {
+    font-size: 12px;
+    color: var(--violeta);
+    white-space: nowrap;
+}
+
+#terminal-entrada {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--texto);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.btn-probar {
+    background: transparent;
+    border: 1px solid var(--borde);
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: var(--gris);
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+.btn-probar:hover { border-color: var(--cyan); color: var(--cyan); }
+#filtros-avanzados {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 20px;
+    border-top: 1px solid var(--borde);
+    border-bottom: 1px solid var(--borde);
+}
+
+.filtro-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--texto2);
+    cursor: pointer;
+}
+.filtro-check input { accent-color: var(--violeta); cursor: pointer; }
+
+#select-orden {
+    background: var(--superficie2);
+    border: 1px solid var(--borde);
+    border-radius: 4px;
+    padding: 5px 8px;
+    color: var(--texto);
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    cursor: pointer;
+}
