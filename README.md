@@ -2,7 +2,6 @@ LINUXDEX JC
 
 Interactive Linux command index built with Vanilla JavaScript. Provides categorized Linux commands with a fast search system and a modern terminal-inspired interface.
 
-DEMO
 
 https://josue-dev-0210.github.io/LinuxDex/
 
