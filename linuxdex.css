@@ -232,6 +232,8 @@ body { overflow: auto; }
 #contenido { padding: 16px; }
 #cuadricula-cmds { grid-template-columns: 1fr; }
 }
+
+
 .cmd-ejemplo {
     font-size: 11px;
     color: var(--cyan);
@@ -251,6 +253,8 @@ body { overflow: auto; }
     gap: 8px;
     margin-top: 2px;
 }
+
+
 .cmd-acciones {
     display: flex;
     align-items: center;
@@ -274,10 +278,6 @@ body { overflow: auto; }
 
 .btn-favorito.activo {
     border-color: var(--violeta);
-    color: var(--violeta);
-}
-
-.btn-categoria-favoritos.active {
     color: var(--violeta);
 }
 #pie-lateral {
@@ -393,6 +393,7 @@ body { overflow: auto; }
     transition: border-color 0.15s, color 0.15s;
 }
 .btn-probar:hover { border-color: var(--cyan); color: var(--cyan); }
+
 #filtros-avanzados {
     display: flex;
     flex-direction: column;

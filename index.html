@@ -40,7 +40,6 @@
             </svg>
             Todos
             </button>
-
             <button class="btn-categoria btn-categoria-favoritos" data-cat="favoritos">
                 <svg width="14" height="14" viewBox="0 0 32 32" fill="none">
                     <path d="M16 4l3.5 8 8.5.7-6.5 5.6 2 8.7L16 22.5 8.5 27l2-8.7L4 12.7 12.5 12z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -106,8 +105,9 @@
 
     <div id="filtros-avanzados">
         <label class="filtro-check">
-            <input type="checkbox" id="chk-solo-peligrosos" />
-            <span>⚠ Solo peligrosos</span>
+            <input type="checkbox" id="chk-solo-peligrosos" class="interruptor-input" />
+            <span class="interruptor-track"><span class="interruptor-bola"></span></span>
+            <span class="filtro-check-texto">⚠ Solo peligrosos</span>
         </label>
         <select id="select-orden">
             <option value="defecto">Orden original</option>
