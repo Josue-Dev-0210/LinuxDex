@@ -28,12 +28,6 @@ PREVIEW
 <img width="1919" height="892" alt="Captura desde 2026-05-21 16-04-44" src="https://github.com/user-attachments/assets/1149913b-54c2-48b6-a366-950356eeb874" />
 
 
-FUTURE IMPROVEMENTS 
-
-- Command examples
-- Favorite commands system
-- Terminal emulation
-- Advanced filtering
 
 AUTHOR
 
