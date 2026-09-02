@@ -255,6 +255,7 @@ body { overflow: auto; }
 }
 
 
+
 .cmd-acciones {
     display: flex;
     align-items: center;
@@ -278,6 +279,10 @@ body { overflow: auto; }
 
 .btn-favorito.activo {
     border-color: var(--violeta);
+    color: var(--violeta);
+}
+
+.btn-categoria-favoritos.active {
     color: var(--violeta);
 }
 #pie-lateral {
@@ -394,6 +399,8 @@ body { overflow: auto; }
 }
 .btn-probar:hover { border-color: var(--cyan); color: var(--cyan); }
 
+
+
 #filtros-avanzados {
     display: flex;
     flex-direction: column;
@@ -406,12 +413,66 @@ body { overflow: auto; }
 .filtro-check {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-size: 11px;
     color: var(--texto2);
     cursor: pointer;
+    position: relative;
 }
-.filtro-check input { accent-color: var(--violeta); cursor: pointer; }
+
+.interruptor-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    width: 34px;
+    height: 18px;
+    margin: 0;
+    z-index: 2; 
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.interruptor-track {
+    position: relative;
+    width: 34px;
+    height: 18px;
+    min-width: 34px;
+    background: var(--superficie2);
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.interruptor-bola {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--gris);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.interruptor-input:checked + .interruptor-track {
+    background: rgba(255, 45, 120, 0.18);
+    border-color: var(--rosa);
+    box-shadow: 0 0 8px rgba(255, 45, 120, 0.35);
+}
+.interruptor-input:checked + .interruptor-track .interruptor-bola {
+    transform: translateX(16px);
+    background: var(--rosa);
+}
+
+.interruptor-input:focus-visible + .interruptor-track {
+    outline: 2px solid var(--violeta);
+    outline-offset: 2px;
+}
+
+.filtro-check-texto { transition: color 0.15s; }
+.filtro-check:has(.interruptor-input:checked) .filtro-check-texto { color: var(--rosa); }
 
 #select-orden {
     background: var(--superficie2);
