@@ -533,36 +533,6 @@ button:focus-visible,
     padding: clamp(20px, 4vw, 48px);
 }
 
-#encabezado-contenido {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
-    margin: 0 auto 28px;
-    max-width: 1440px;
-}
-
-.contenido-eyebrow {
-    color: var(--cyan);
-    font-size: 10px;
-    font-weight: bold;
-    letter-spacing: 0.18em;
-    margin-bottom: 10px;
-}
-
-#encabezado-contenido h2 {
-    color: var(--texto);
-    font-size: clamp(22px, 3vw, 34px);
-    letter-spacing: -0.04em;
-}
-
-.contenido-subtitulo {
-    color: var(--texto2);
-    font-size: 12px;
-    line-height: 1.6;
-    margin-top: 8px;
-}
-
 #contador-cmds {
     flex-shrink: 0;
     padding: 7px 10px;
@@ -691,17 +661,6 @@ button:focus-visible,
     #contenido {
         overflow: visible;
         padding: 24px 16px;
-    }
-
-    #encabezado-contenido {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 20px;
-    }
-
-    #contador-cmds {
-        margin-top: 0;
     }
 
     #cuadricula-cmds {
