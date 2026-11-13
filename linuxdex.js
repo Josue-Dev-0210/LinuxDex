@@ -199,75 +199,120 @@ function esFavorito(cmd) {
 function alternarFavorito(cmd) {
     if (favoritos.has(cmd)) favoritos.delete(cmd);
     else favoritos.add(cmd);
-guardarFavoritos();
+    guardarFavoritos();
 }
 
 const terminalSalida  = document.getElementById('terminal-salida');
 const terminalEntrada = document.getElementById('terminal-entrada');
 const panelTerminal   = document.getElementById('panel-terminal');
+const historialTerminal = [];
+let indiceHistorial = 0;
 
 function imprimirEnTerminal(texto, clase = '') {
     const linea = document.createElement('div');
     linea.className = 'terminal-linea' + (clase ? ' ' + clase : '');
     linea.textContent = texto;
     terminalSalida.appendChild(linea);
-terminalSalida.scrollTop = terminalSalida.scrollHeight;
+    terminalSalida.scrollTop = terminalSalida.scrollHeight;
 }
+
 function buscarComandoSimulado(entrada) {
     const entradaLower = entrada.toLowerCase();
-    const primeraPalabra = entradaLower.split(' ')[0];
-    const candidatos = COMANDOS.filter(c => c.cmd.toLowerCase().split(' ')[0] === primeraPalabra);
+    const primeraPalabra = entradaLower.split(/\s+/)[0];
+    const candidatos = COMANDOS.filter(c => c.cmd.toLowerCase().split(/\s+/)[0] === primeraPalabra);
 
-if (candidatos.length === 0) return null;
-if (candidatos.length === 1) return candidatos[0];
-
-let mejor = candidatos[0];
-let mejorPuntaje = -1;
-candidatos.forEach(c => {
-    const cLower = c.cmd.toLowerCase();
-    let compartidos = 0;
-    while (
-        compartidos < cLower.length &&
-        compartidos < entradaLower.length &&
-        cLower[compartidos] === entradaLower[compartidos]
-    ) compartidos++;
-        if (compartidos > mejorPuntaje) { mejorPuntaje = compartidos; mejor = c; }
-    });
-    return mejor;
+    return candidatos.reduce((mejor, candidato) => {
+        if (!mejor) return candidato;
+        const prefijoCompartido = comando => {
+            let indice = 0;
+            const comandoLower = comando.toLowerCase();
+            while (indice < comandoLower.length && indice < entradaLower.length && comandoLower[indice] === entradaLower[indice]) indice++;
+            return indice;
+        };
+        return prefijoCompartido(candidato.cmd) > prefijoCompartido(mejor.cmd) ? candidato : mejor;
+    }, null);
 }
 
 function ejecutarComandoSimulado(entradaCruda) {
-const entrada = entradaCruda.trim();
-imprimirEnTerminal('usuario@linuxdex:~$ ' + entrada, 'terminal-prompt-eco');
+    const entrada = entradaCruda.trim();
+    if (!entrada) return;
 
-if (!entrada) return;
+    imprimirEnTerminal('usuario@linuxdex:~$ ' + entrada, 'terminal-prompt-eco');
 
-const encontrado = buscarComandoSimulado(entrada);
+    if (entrada.toLowerCase() === 'clear') {
+        terminalSalida.replaceChildren();
+        return;
+    }
 
-if (!encontrado) {
-    imprimirEnTerminal(`bash: ${entrada.split(' ')[0]}: orden no encontrada`, 'terminal-error');
-    return;
-}
+    if (entrada.toLowerCase() === 'help') {
+        imprimirEnTerminal('Comandos disponibles: ' + [...new Set(COMANDOS.map(c => c.cmd.split(/\s+/)[0]))].join(', ') + ', clear, help');
+        imprimirEnTerminal('Esta terminal es una simulación: no ejecuta comandos en tu sistema.', 'terminal-generico');
+        return;
+    }
 
-if (encontrado.salida) {
-    encontrado.salida.split('\n').forEach(linea => imprimirEnTerminal(linea));
-} else {
+    const encontrado = buscarComandoSimulado(entrada);
+    if (!encontrado) {
+        imprimirEnTerminal(`bash: ${entrada.split(/\s+/)[0]}: orden no encontrada`, 'terminal-error');
+        return;
+    }
+
+    if (encontrado.salida) {
+        encontrado.salida.split('\n').forEach(linea => imprimirEnTerminal(linea));
+    } else {
         imprimirEnTerminal(`[simulado] ${encontrado.desc}`, 'terminal-generico');
     }
 }
 
-document.getElementById('btn-abrir-terminal').addEventListener('click', () => {
+const botonAbrirTerminal = document.getElementById('btn-abrir-terminal');
+
+function abrirTerminal() {
     panelTerminal.classList.remove('oculto');
     terminalEntrada.focus();
-});
-document.getElementById('btn-cerrar-terminal').addEventListener('click', () => {
+}
+
+function cerrarTerminal() {
     panelTerminal.classList.add('oculto');
+    botonAbrirTerminal.focus();
+}
+
+botonAbrirTerminal.addEventListener('click', abrirTerminal);
+document.getElementById('btn-cerrar-terminal').addEventListener('click', cerrarTerminal);
+document.getElementById('btn-limpiar-terminal').addEventListener('click', () => {
+    terminalSalida.replaceChildren();
+    terminalEntrada.focus();
+});
+panelTerminal.addEventListener('click', e => {
+    if (e.target === panelTerminal) cerrarTerminal();
+});
+panelTerminal.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const elementos = panelTerminal.querySelectorAll('button:not([disabled]), input:not([disabled])');
+    const primero = elementos[0];
+    const ultimo = elementos[elementos.length - 1];
+    if (e.shiftKey && document.activeElement === primero) {
+        e.preventDefault();
+        ultimo.focus();
+    } else if (!e.shiftKey && document.activeElement === ultimo) {
+        e.preventDefault();
+        primero.focus();
+    }
 });
 
 terminalEntrada.addEventListener('keydown', e => {
-if (e.key === 'Enter' && terminalEntrada.value.trim()) {
+    if (e.key === 'Enter' && terminalEntrada.value.trim()) {
+        const entrada = terminalEntrada.value.trim();
+        if (historialTerminal[historialTerminal.length - 1] !== entrada) historialTerminal.push(entrada);
+        indiceHistorial = historialTerminal.length;
         ejecutarComandoSimulado(terminalEntrada.value);
         terminalEntrada.value = '';
+    } else if (e.key === 'ArrowUp' && historialTerminal.length) {
+        e.preventDefault();
+        indiceHistorial = Math.max(0, indiceHistorial - 1);
+        terminalEntrada.value = historialTerminal[indiceHistorial];
+    } else if (e.key === 'ArrowDown' && historialTerminal.length) {
+        e.preventDefault();
+        indiceHistorial = Math.min(historialTerminal.length, indiceHistorial + 1);
+        terminalEntrada.value = historialTerminal[indiceHistorial] || '';
     }
 });
 
@@ -285,124 +330,195 @@ document.getElementById('select-orden').addEventListener('change', e => {
 });
 
 function ordenarComandos(lista) {
-    const copia = [...lista]; 
-if (ordenActual === 'az') {
+    const copia = [...lista];
+    if (ordenActual === 'az') {
         copia.sort((a, b) => a.cmd.localeCompare(b.cmd));
     } else if (ordenActual === 'categoria') {
-    copia.sort((a, b) => a.cat.localeCompare(b.cat));
+        copia.sort((a, b) => a.cat.localeCompare(b.cat) || a.cmd.localeCompare(b.cmd));
     }
     return copia;
 }
+
+const NOMBRES_CATEGORIA = {
+    archivos: 'Archivos',
+    redes: 'Redes',
+    permisos: 'Permisos',
+    procesos: 'Procesos',
+    sistema: 'Sistema',
+    busqueda: 'Búsqueda',
+    compresion: 'Compresión'
+};
 
 let categoriaActiva  = 'todos';
 let terminoBusqueda  = '';
 
 const cuadricula     = document.getElementById('cuadricula-cmds');
 const sinResultados  = document.getElementById('sin-resultados');
-const terminoVacio   = document.getElementById('termino-vacio');
+const mensajeSinResultados = document.getElementById('mensaje-sin-resultados');
 const contadorCmds   = document.getElementById('contador-cmds');
 
+function normalizarTexto(texto) {
+    return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
 
 function filtrarComandos() {
-return COMANDOS.filter(c => {
-    const coincideCategoria = categoriaActiva === 'todos'
-    || (categoriaActiva === 'favoritos' ? esFavorito(c.cmd) : c.cat === categoriaActiva);
-
-    const termino          = terminoBusqueda.toLowerCase();
-    const coincideBusqueda = !termino
-    || c.cmd.toLowerCase().includes(termino)
-    || c.desc.toLowerCase().includes(termino);
-
-    const coincidePeligro = !soloPeligrosos || c.peligroso === true;
-
+    return COMANDOS.filter(c => {
+        const coincideCategoria = categoriaActiva === 'todos'
+            || (categoriaActiva === 'favoritos' ? esFavorito(c.cmd) : c.cat === categoriaActiva);
+        const camposBusqueda = [c.cmd, c.desc, c.ejemplo || '', NOMBRES_CATEGORIA[c.cat]];
+        const termino = normalizarTexto(terminoBusqueda.trim());
+        const coincideBusqueda = !termino
+            || camposBusqueda.some(campo => normalizarTexto(campo).includes(termino));
+        const coincidePeligro = !soloPeligrosos || c.peligroso === true;
         return coincideCategoria && coincideBusqueda && coincidePeligro;
     });
 }
 
-function renderizarComandos() {
-const lista = ordenarComandos(filtrarComandos());
-cuadricula.innerHTML = '';
-
-if (!lista.length) {
-    terminoVacio.textContent = terminoBusqueda;
-    sinResultados.classList.remove('oculto');
-    contadorCmds.textContent = '0 comandos';
-    return;
+function crearBoton(clase, texto, cmd, etiqueta) {
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = clase;
+    boton.textContent = texto;
+    boton.dataset.cmd = cmd;
+    boton.setAttribute('aria-label', etiqueta);
+    return boton;
 }
 
-sinResultados.classList.add('oculto');
-contadorCmds.textContent = lista.length + ' comando' + (lista.length !== 1 ? 's' : '');
+function renderizarComandos() {
+    const lista = ordenarComandos(filtrarComandos());
+    cuadricula.replaceChildren();
+    contadorCmds.textContent = lista.length + ' comando' + (lista.length !== 1 ? 's' : '');
 
-lista.forEach(c => {
-    const tarjeta = document.createElement('div');
-    tarjeta.className = 'tarjeta-cmd' + (c.peligroso ? ' peligroso' : '');
+    if (!lista.length) {
+        mensajeSinResultados.textContent = terminoBusqueda.trim()
+            ? `Sin resultados para "${terminoBusqueda.trim()}".`
+            : 'No hay comandos que coincidan con los filtros.';
+        sinResultados.classList.remove('oculto');
+        return;
+    }
 
-const favMarcado = esFavorito(c.cmd);
+    sinResultados.classList.add('oculto');
 
-    tarjeta.innerHTML = `
-    <div class="cmd-top">
-        <span class="cmd-codigo">${c.cmd}</span>
-        <div class="cmd-acciones">
-        <button class="btn-favorito${favMarcado ? ' activo' : ''}" data-cmd="${c.cmd}" title="Marcar como favorito">
-                ${favMarcado ? '★' : '☆'}
-            </button>
-            <button class="btn-copiar" data-cmd="${c.cmd}">copiar</button>
-        </div>
-    </div>
-    <div class="cmd-descripcion">${c.desc}</div>
-    ${c.ejemplo ? `<div class="cmd-ejemplo"><span class="cmd-ejemplo-etiqueta">ejemplo:</span> ${c.ejemplo}</div>` : ''}
-    <div class="cmd-fila-inferior">
-            <span class="cmd-etiqueta">${c.cat}${c.peligroso ? ' · ⚠ peligroso' : ''}</span>
-            <button class="btn-probar" data-cmd="${c.cmd}">▶ probar</button>
-        </div>
-        `;
+    lista.forEach(c => {
+        const tarjeta = document.createElement('article');
+        tarjeta.className = 'tarjeta-cmd' + (c.peligroso ? ' peligroso' : '');
+
+        const top = document.createElement('div');
+        top.className = 'cmd-top';
+        const codigo = document.createElement('code');
+        codigo.className = 'cmd-codigo';
+        codigo.textContent = c.cmd;
+
+        const acciones = document.createElement('div');
+        acciones.className = 'cmd-acciones';
+        const favMarcado = esFavorito(c.cmd);
+        const botonFavorito = crearBoton(
+            'btn-favorito' + (favMarcado ? ' activo' : ''),
+            favMarcado ? '★' : '☆',
+            c.cmd,
+            `${favMarcado ? 'Quitar de' : 'Añadir a'} favoritos: ${c.cmd}`
+        );
+        botonFavorito.setAttribute('aria-pressed', String(favMarcado));
+        const botonCopiar = crearBoton('btn-copiar', 'copiar', c.cmd, `Copiar comando: ${c.cmd}`);
+        acciones.append(botonFavorito, botonCopiar);
+        top.append(codigo, acciones);
+        tarjeta.appendChild(top);
+
+        const descripcion = document.createElement('p');
+        descripcion.className = 'cmd-descripcion';
+        descripcion.textContent = c.desc;
+        tarjeta.appendChild(descripcion);
+
+        if (c.ejemplo) {
+            const ejemplo = document.createElement('p');
+            ejemplo.className = 'cmd-ejemplo';
+            const etiquetaEjemplo = document.createElement('span');
+            etiquetaEjemplo.className = 'cmd-ejemplo-etiqueta';
+            etiquetaEjemplo.textContent = 'ejemplo:';
+            ejemplo.append(etiquetaEjemplo, document.createTextNode(` ${c.ejemplo}`));
+            tarjeta.appendChild(ejemplo);
+        }
+
+        const filaInferior = document.createElement('div');
+        filaInferior.className = 'cmd-fila-inferior';
+        const etiqueta = document.createElement('span');
+        etiqueta.className = 'cmd-etiqueta';
+        etiqueta.textContent = NOMBRES_CATEGORIA[c.cat] + (c.peligroso ? ' · ⚠ peligroso' : '');
+        const botonProbar = crearBoton('btn-probar', '▶ probar', c.cmd, `Probar en terminal simulada: ${c.cmd}`);
+        filaInferior.append(etiqueta, botonProbar);
+        tarjeta.appendChild(filaInferior);
         cuadricula.appendChild(tarjeta);
     });
 }
 
-
 cuadricula.addEventListener('click', e => {
-const botonCopiar = e.target.closest('.btn-copiar');
-if (botonCopiar) {
-    navigator.clipboard.writeText(botonCopiar.dataset.cmd).then(() => {
-        botonCopiar.textContent = '✓ copiado';
-        botonCopiar.classList.add('copiado');
-        setTimeout(() => {
-            botonCopiar.textContent = 'copiar';
-            botonCopiar.classList.remove('copiado');
-        }, 1500);
-    });
-    return;
-}
+    const botonCopiar = e.target.closest('.btn-copiar');
+    if (botonCopiar) {
+        Promise.resolve().then(() => navigator.clipboard.writeText(botonCopiar.dataset.cmd)).then(() => {
+            botonCopiar.textContent = '✓ copiado';
+            botonCopiar.classList.add('copiado');
+            setTimeout(() => {
+                botonCopiar.textContent = 'copiar';
+                botonCopiar.classList.remove('copiado');
+            }, 1500);
+        }).catch(() => {
+            botonCopiar.textContent = 'falló';
+            botonCopiar.title = 'No se pudo copiar. Selecciona el comando para copiarlo manualmente.';
+        });
+        return;
+    }
 
-const botonFavorito = e.target.closest('.btn-favorito');
-if (botonFavorito) {
-    alternarFavorito(botonFavorito.dataset.cmd);
-    renderizarComandos(); // se vuelve a pintar todo para reflejar el cambio
-    return;
-}
+    const botonFavorito = e.target.closest('.btn-favorito');
+    if (botonFavorito) {
+        alternarFavorito(botonFavorito.dataset.cmd);
+        renderizarComandos();
+        return;
+    }
 
-const botonProbar = e.target.closest('.btn-probar');
-if (botonProbar) {
+    const botonProbar = e.target.closest('.btn-probar');
+    if (botonProbar) {
         panelTerminal.classList.remove('oculto');
+        terminalEntrada.focus();
         ejecutarComandoSimulado(botonProbar.dataset.cmd);
     }
 });
 
-
-document.getElementById('entrada-busqueda').addEventListener('input', e => {
+const entradaBusqueda = document.getElementById('entrada-busqueda');
+entradaBusqueda.addEventListener('input', e => {
     terminoBusqueda = e.target.value;
     renderizarComandos();
 });
 
 document.querySelectorAll('.btn-categoria').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.btn-categoria').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.btn-categoria').forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         categoriaActiva = btn.dataset.cat;
         renderizarComandos();
     });
 });
 
+document.addEventListener('keydown', e => {
+    const elementoActivo = document.activeElement;
+    const estaEscribiendo = elementoActivo instanceof HTMLElement
+        && (elementoActivo.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(elementoActivo.tagName));
+
+    if (e.key === '/' && !estaEscribiendo) {
+        e.preventDefault();
+        entradaBusqueda.focus();
+    } else if (e.key === 'Escape') {
+        if (!panelTerminal.classList.contains('oculto')) {
+            cerrarTerminal();
+        } else if (document.activeElement === entradaBusqueda && entradaBusqueda.value) {
+            entradaBusqueda.value = '';
+            terminoBusqueda = '';
+            renderizarComandos();
+        }
+    }
+});
 
 renderizarComandos();
